@@ -147,32 +147,85 @@ fn test111() {
 
 #[test]
 fn test21() {
-    // Пример 1 из 4.2
+use std::mem::size_of;
+fn main() {
+    let c1 = 'a';
+    assert_eq!(size_of::<char>(), 4);
+
+    let c2 = '中';
+    assert_eq!(size_of::<char>(), 4);
+
+    println!("Success!");
+}
+
 }
 
 #[test]
 fn test22() {
-    // Пример 2 из 4.2
+    fn main() {
+    let c1 = "中";
+    print_char(c1.chars().next().unwrap());
+}
+
+fn print_char(c: char) {
+    println!("{}", c);
+}
+
 }
 
 #[test]
 fn test23() {
-    // Пример 3 из 4.2
+   fn main() {
+    let _f: bool = false;
+
+    let t = false; // Change true to false
+    if !t {
+        println!("Success!");
+    }
+}
+
 }
 
 #[test]
 fn test24() {
-    // Пример 4 из 4.2
+    fn main() {
+    let f = true;
+    let t = true && true; // Change to true && true
+    assert_eq!(t, f);
+
+    println!("Success!");
+}
+
 }
 
 #[test]
 fn test25() {
-    // Пример 5 из 4.2
+    fn main() {
+    let _v: () = ();
+
+    let v = (2, 3);
+    assert_eq!(v, (2, 3)); 
+
+    implicitly_ret_unit();
+
+    println!("Success!");
+}
+
+fn implicitly_ret_unit() {
+    println!("I will return a ()");
+}
+
 }
 
 #[test]
 fn test26() {
-    // Пример 6 из 4.2
+use std::mem::size_of_val;
+fn main() {
+    let unit: () = ();
+    assert!(size_of_val(&unit) == 0);
+
+    println!("Success!");
+}
 }
 
 #[test]
