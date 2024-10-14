@@ -230,17 +230,48 @@ fn main() {
 
 #[test]
 fn test31() {
-    // Пример 1 из 4.3
+   fn main() {
+    let v = {
+        let mut x = 1;
+        x += 2;
+        x 
+    };
+
+    assert_eq!(v, 3);
+
+    println!("Success!");
+}
+
 }
 
 #[test]
 fn test32() {
-    // Пример 2 из 4.3
+    fn main() {
+    let v = {
+        let x = 3;
+        x 
+    };
+
+    assert!(v == 3);
+
+    println!("Success!");
+}
+
 }
 
 #[test]
 fn test33() {
-    // Пример 3 из 4.3
+   fn main() {
+    let s = sum(1, 2);
+    assert_eq!(s, 3);
+
+    println!("Success!");
+}
+
+fn sum(x: i32, y: i32) -> i32 {
+    x + y 
+}
+
 }
 
 #[test]
