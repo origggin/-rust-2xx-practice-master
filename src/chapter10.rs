@@ -566,50 +566,402 @@ fn main() {
 
 #[test]
 fn test4_1() {
+trait Bird {
+    fn quack(&self) -> String;
+}
 
+struct Duck;
+impl Duck {
+    fn swim(&self) {
+        println!("Look, the duck is swimming")
+    }
+}
+struct Swan;
+impl Swan {
+    fn fly(&self) {
+        println!("Look, the duck.. oh sorry, the swan is flying")
+    }
+}
+
+impl Bird for Duck {
+    fn quack(&self) -> String{
+        "duck duck".to_string()
+    }
+}
+
+impl Bird for Swan {
+    fn quack(&self) -> String{
+        "swan swan".to_string()
+    }
+}
+
+fn main() {
+    let duck = Duck;
+    duck.swim();
+
+    let bird = hatch_a_bird(2);
+    // this bird has forgotten how to swim, so below line will cause an error
+    // bird.swim();
+    // but it can quack
+    assert_eq!(bird.quack(), "duck duck");
+
+    let bird = hatch_a_bird(1);
+    // this bird has forgotten how to fly, so below line will cause an error
+    // bird.fly();
+    // but it can quack too
+    assert_eq!(bird.quack(), "swan swan");
+
+    println!("Success!")
+}   
+
+fn hatch_a_bird(species: u8) ->Box<dyn Bird> {
+    if species == 1 {
+        Box::new(Swan{})
+    } else {
+        Box::new(Duck{})
+    }
+}
 }
 
 #[test]
 fn test4_2() {
+trait Bird {
+    fn quack(&self);
+}
 
+struct Duck;
+impl Duck {
+    fn fly(&self) {
+        println!("Look, the duck is flying")
+    }
+}
+struct Swan;
+impl Swan {
+    fn fly(&self) {
+        println!("Look, the duck.. oh sorry, the swan is flying")
+    }
+}
+
+impl Bird for Duck {
+    fn quack(&self) {
+        println!("{}", "duck duck");
+    }
+}
+
+impl Bird for Swan {
+    fn quack(&self) {
+        println!("{}", "swan swan");
+    }
+}
+
+fn main() {
+    let birds: [Box<dyn Bird>; 2] = [Box::new(Duck {}), Box::new(Swan {})];
+
+    for bird in birds {
+        bird.quack();
+        // when duck and swan turn into Bird, they all forget how to fly, and only remember how to quack
+        // so, the below code will cause an error
+        // bird.fly();
+    }
+}
 }
 
 #[test]
 fn test4_3() {
+trait Draw {
+    fn draw(&self) -> String;
+}
 
+impl Draw for u8 {
+    fn draw(&self) -> String {
+        format!("u8: {}", *self)
+    }
+}
+
+impl Draw for f64 {
+    fn draw(&self) -> String {
+        format!("f64: {}", *self)
+    }
+}
+
+fn main() {
+    let x = 1.1f64;
+    let y = 8u8;
+
+    // draw x
+    draw_with_box(Box::new(x));
+
+    // draw y
+    draw_with_ref(&y);
+}
+
+fn draw_with_box(x: Box<dyn Draw>) {
+    x.draw();
+}
+
+fn draw_with_ref(x: &dyn Draw) {
+    x.draw();
+}
 }
 
 #[test]
 fn test4_4() {
+trait Foo {
+    fn method(&self) -> String;
+}
 
+impl Foo for u8 {
+    fn method(&self) -> String { format!("u8: {}", *self) }
+}
+
+impl Foo for String {
+    fn method(&self) -> String { format!("string: {}", *self) }
+}
+
+// implement below with generics
+fn static_dispatch<T: Foo>(x: T) {
+    x.method();
+}
+
+// implement below with trait objects
+fn dynamic_dispatch(x: &dyn Foo) {
+    x.method();
+}
+
+fn main() {
+    let x = 5u8;
+    let y = "Hello".to_string();
+
+    static_dispatch(x);
+    dynamic_dispatch(&y);
+
+    println!("Success!")
+}
 }
 
 #[test]
 fn test4_5() {
+trait MyTrait {
+    fn f(&self) -> Self;
+}
 
+impl MyTrait for u32 {
+    fn f(&self) -> u32 { 42 }
+}
+
+impl MyTrait for String {
+    fn f(&self) -> String { self.clone() }
+}
+
+fn my_function(x: impl MyTrait) -> impl MyTrait  {
+    x.f()
+}
+
+fn main() {
+    my_function(13_u32);
+    my_function(String::from("abc"));
+}
 }
 
 #[test]
 fn test5_1() {
+struct Container(i32, i32);
 
+// A trait which checks if 2 items are stored inside of container.
+// Also retrieves first or last value.
+trait Contains {
+    // Define generic types here which methods will be able to utilize.
+    type A;
+    type B;
+
+    fn contains(&self, _: &Self::A, _: &Self::B) -> bool;
+    fn first(&self) -> i32;
+    fn last(&self) -> i32;
+}
+
+impl Contains for Container {
+    // Specify what types `A` and `B` are. If the `input` type
+    // is `Container(i32, i32)`, the `output` types are determined
+    // as `i32` and `i32`.
+    type A = i32;
+    type B = i32;
+
+    // `&Self::A` and `&Self::B` are also valid here.
+    fn contains(&self, number_1: &i32, number_2: &i32) -> bool {
+        (&self.0 == number_1) && (&self.1 == number_2)
+    }
+    // Grab the first number.
+    fn first(&self) -> i32 { self.0 }
+
+    // Grab the last number.
+    fn last(&self) -> i32 { self.1 }
+}
+
+fn difference<C: Contains>(container: &C) -> i32 {
+    container.last() - container.first()
+}
+
+fn main() {
+    let number_1 = 3;
+    let number_2 = 10;
+
+    let container = Container(number_1, number_2);
+
+    println!("Does container contain {} and {}: {}",
+        &number_1, &number_2,
+        container.contains(&number_1, &number_2));
+    println!("First number: {}", container.first());
+    println!("Last number: {}", container.last());
+    
+    println!("The difference is: {}", difference(&container));
+}
 }
 
 #[test]
 fn test5_2() {
+impl<T: Sub<Output = T>> Sub<Point<T>> for Point<T> {
+    type Output = Self;
 
+    fn sub(self, other: Self) -> Self::Output {
+        Point {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
 }
 
 #[test]
 fn test5_3() {
+trait Pilot {
+    fn fly(&self) -> String;
+}
 
+trait Wizard {
+    fn fly(&self) -> String;
+}
+
+struct Human;
+
+impl Pilot for Human {
+    fn fly(&self) -> String {
+        String::from("This is your captain speaking.")
+    }
+}
+
+impl Wizard for Human {
+    fn fly(&self) -> String {
+        String::from("Up!")
+    }
+}
+
+impl Human {
+    fn fly(&self) -> String {
+        String::from("*waving arms furiously*")
+    }
+}
+
+fn main() {
+    let person = Human;
+    assert_eq!(Pilot::fly(&person), "This is your captain speaking.");
+    assert_eq!(Wizard::fly(&person), "Up!");
+
+    assert_eq!(person.fly(), "*waving arms furiously*");
+
+    println!("Success!")
+}
 }
 
 #[test]
 fn test5_4() {
+trait Person {
+    fn name(&self) -> String;
+}
 
+// Person is a supertrait of Student.
+// Implementing Student requires you to also impl Person.
+trait Student: Person {
+    fn university(&self) -> String;
+}
+
+trait Programmer {
+    fn fav_language(&self) -> String;
+}
+
+// CompSciStudent (computer science student) is a subtrait of both Programmer 
+// and Student. Implementing CompSciStudent requires you to impl both supertraits.
+trait CompSciStudent: Programmer + Student {
+    fn git_username(&self) -> String;
+}
+
+fn comp_sci_student_greeting(student: &dyn CompSciStudent) -> String {
+    format!(
+        "My name is {} and I attend {}. My favorite language is {}. My Git username is {}",
+        student.name(),
+        student.university(),
+        student.fav_language(),
+        student.git_username()
+    )
+}
+
+struct CSStudent {
+    name: String,
+    university: String,
+    fav_language: String,
+    git_username: String
+}
+
+impl Person for CSStudent {
+    fn name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+impl Student for CSStudent {
+    fn university(&self) -> String {
+        self.university.clone()
+    }
+}
+
+impl Programmer for CSStudent {
+    fn fav_language(&self) -> String {
+        self.fav_language.clone()
+    }
+}
+
+impl CompSciStudent for CSStudent {
+    fn git_username(&self) -> String {
+        self.git_username.clone()
+    }
+}
+
+fn main() {
+    let student = CSStudent {
+        name: "Sunfei".to_string(),
+        university: "XXX".to_string(),
+        fav_language: "Rust".to_string(),
+        git_username: "sunface".to_string()
+    };
+
+    println!("{}", comp_sci_student_greeting(&student));
+}
 }
 
 #[test]
 fn test5_5() {
+use std::fmt;
 
+// DEFINE a newtype `Pretty`
+struct Pretty(String);
+
+impl fmt::Display for Pretty {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\"{}\"", self.0.clone() + ", world")
+    }
+}
+
+fn main() {
+    let w = Pretty("hello".to_string());
+    println!("w = {}", w);
+}
 }
