@@ -48,7 +48,7 @@ fn main() {
 fn test15() {
 fn main() {
     let v1 = 251_u8.checked_add(8).unwrap(); 
-    let v2 = i8::checked_add(251, 8).unwrap(); 
+    let v2 = i32::checked_add(251, 8).unwrap();
 
     println!("{}, {}", v1, v2);
 }
@@ -86,10 +86,9 @@ fn type_of<T>(_: &T) -> String {
 #[test]
 fn test18() {
 fn main() {
-    let epsilon = 1e-10; 
-    assert!((0.1 + 0.2 - 0.3).abs() < epsilon); 
-
-    println!("Success!");
+    fn main() {
+        assert!(0.1_f32+0.2_f32==0.3_f32);
+    }
 }
 
 }
@@ -314,16 +313,7 @@ fn never_return() -> ! {
     loop {} // Infinite loop
 }
 
-        /// или 
-fn main() {
-    never_return();
 
-    println!("Failed!");
-}
-
-fn never_return() -> ! {
-    panic!("This function will never return!");
-}
 
 }
 
